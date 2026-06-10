@@ -1,0 +1,1940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STAR-TWEAK Interface Revamp</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ---------- 1. Root Variables & Base Setup ---------- */
+        :root {
+            --bg-color: #e0e5ec;
+            --text-color: #5b6577;
+            --accent-color: #6a8eff; /* Changed from #007BFF - softer blue */
+            --accent-light: #8aabff; /* Lighter version of accent */
+            --success-color: #4CAF50; /* Changed from #28a745 - softer green */
+            --danger-color: #F44336; /* Changed from #dc3545 - softer red */
+            --warning-color: #FF9800; /* Changed from #ffc107 - softer orange */
+            
+            --shadow-light: rgba(255, 255, 255, 0.9);
+            --shadow-dark: rgba(163, 177, 198, 0.4); /* Reduced opacity for softer shadows */
+            
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            
+            --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+            
+            --trans-speed: 200ms ease-in-out;
+            --trans-cubic: cubic-bezier(0.2, 0.9, 0.3, 1);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+        
+        /* ---------- STAR-TWEAK Logo Styling ---------- */
+#home-section img {
+    display: block;
+    max-width: 280px;
+    width: 100%;
+    height: auto;
+    margin: 0 auto 30px;
+    border-radius: 20px;
+    box-shadow: 
+        12px 12px 24px rgba(163, 177, 198, 0.3), 
+        -12px -12px 24px rgba(255, 255, 255, 0.8),
+        inset 4px 4px 8px rgba(255, 255, 255, 0.7),
+        inset -4px -4px 8px rgba(163, 177, 198, 0.2);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    filter: brightness(1.05) contrast(1.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    object-fit: cover;
+}
+
+#home-section img:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 
+        16px 16px 32px rgba(163, 177, 198, 0.3), 
+        -16px -16px 32px rgba(255, 255, 255, 0.8),
+        inset 6px 6px 12px rgba(255, 255, 255, 0.8),
+        inset -6px -6px 12px rgba(163, 177, 198, 0.3);
+    filter: brightness(1.1) contrast(1.15);
+}
+
+/* Animation for initial load */
+@keyframes logoReveal {
+    0% {
+        opacity: 0;
+        transform: translateY(30px) scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+#home-section img {
+    animation: logoReveal 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s both;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1000px) {
+    #home-section img {
+        max-width: 200px;
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 1200px) {
+    #home-section img {
+        max-width: 1000px;
+        margin-bottom: 15px;
+    }
+}
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-ui);
+            font-size: 15px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ---------- 2. Top Navigation ---------- */
+        .nav-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 75px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+            z-index: 1000;
+            background-color: transparent;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .nav-tabs {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            border-radius: var(--radius-lg);
+            background: var(--bg-color);
+            box-shadow: 
+                inset 6px 6px 12px var(--shadow-dark), 
+                inset -6px -6px 12px var(--shadow-light);
+        }
+
+        .nav-tab {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--trans-speed);
+        }
+
+        .nav-tab:hover {
+            color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .nav-tab.active {
+            color: #fff;
+            background-color: var(--accent-color);
+            box-shadow: 
+                3px 3px 6px var(--shadow-dark), 
+                -3px -3px 6px var(--shadow-light);
+            transform: translateY(-1px);
+        }
+        
+        .nav-tab.active i {
+            color: #fff;
+        }
+
+        .nav-tab i {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            transition: color var(--trans-speed);
+        }
+        
+        .nav-actions {
+            position: absolute;
+            right: 25px;
+        }
+        .nav-actions .btn {
+            background: var(--bg-color);
+            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+            transition: all var(--trans-speed);
+        }
+        .nav-actions .btn:hover {
+            box-shadow: 7px 7px 14px var(--shadow-dark), -7px -7px 14px var(--shadow-light);
+            transform: translateY(-2px);
+            color: var(--accent-color);
+        }
+        .nav-actions .btn:active {
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+            transform: scale(0.95);
+        }
+
+        /* ---------- 3. General Layout & Sections ---------- */
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 100px 20px 30px;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.4s var(--trans-cubic);
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ---------- 4. Neumorphic Card & Button Styles ---------- */
+        .card, .home-card, .battery-card, .developer-card, .status-item, .stat-card, .package-item,
+        .device-info-card, .terminal-container {
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            background: var(--bg-color);
+            box-shadow: 
+                8px 8px 16px var(--shadow-dark), 
+                -8px -8px 16px var(--shadow-light);
+            transition: all var(--trans-speed);
+        }
+
+        .card:hover, .home-card:hover, .developer-card:hover, .device-info-card:hover {
+            box-shadow: 
+                10px 10px 20px var(--shadow-dark), 
+                -10px -10px 20px var(--shadow-light);
+            transform: translateY(-4px);
+        }
+        
+        .btn, button, .home-btn, .battery-btn, .modal-btn, .action-btn, .preload-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 18px;
+            border-radius: var(--radius-md);
+            border: none;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            box-shadow: 
+                4px 4px 8px var(--shadow-dark),
+                -4px -4px 8px var(--shadow-light);
+            transition: all var(--trans-speed);
+        }
+
+        .btn:hover, button:hover {
+            color: var(--accent-color);
+            box-shadow: 
+                6px 6px 12px var(--shadow-dark),
+                -6px -6px 12px var(--shadow-light);
+        }
+
+        .btn:active, button:active {
+            box-shadow: 
+                inset 3px 3px 6px var(--shadow-dark),
+                inset -3px -3px 6px var(--shadow-light);
+            transform: scale(0.98);
+        }
+        
+        /* Button Variants - Softer Colors */
+        .btn-accent {
+            background-color: var(--accent-color);
+            color: #fff !important;
+            box-shadow: 4px 4px 8px rgba(106, 142, 255, 0.3),
+                       -4px -4px 8px rgba(106, 142, 255, 0.1);
+        }
+        .btn-accent:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 12px rgba(106, 142, 255, 0.4),
+                       -6px -6px 12px rgba(106, 142, 255, 0.2);
+        }
+        .btn-accent:active {
+            box-shadow: inset 3px 3px 6px rgba(106, 142, 255, 0.5),
+                       inset -3px -3px 6px rgba(106, 142, 255, 0.3);
+            transform: scale(0.98);
+        }
+
+        .btn-success { 
+            background-color: var(--success-color); 
+            color: #fff !important;
+            box-shadow: 4px 4px 8px rgba(76, 175, 80, 0.3),
+                       -4px -4px 8px rgba(76, 175, 80, 0.1);
+        }
+        .btn-success:hover {
+            box-shadow: 6px 6px 12px rgba(76, 175, 80, 0.4),
+                       -6px -6px 12px rgba(76, 175, 80, 0.2);
+        }
+        
+        .btn-danger { 
+            background-color: var(--danger-color); 
+            color: #fff !important;
+            box-shadow: 4px 4px 8px rgba(244, 67, 54, 0.3),
+                       -4px -4px 8px rgba(244, 67, 54, 0.1);
+        }
+        .btn-danger:hover {
+            box-shadow: 6px 6px 12px rgba(244, 67, 54, 0.4),
+                       -6px -6px 12px rgba(244, 67, 54, 0.2);
+        }
+        
+        .btn-warning { 
+            background-color: var(--warning-color); 
+            color: #fff !important;
+            box-shadow: 4px 4px 8px rgba(255, 152, 0, 0.3),
+                       -4px -4px 8px rgba(255, 152, 0, 0.1);
+        }
+        .btn-warning:hover {
+            box-shadow: 6px 6px 12px rgba(255, 152, 0, 0.4),
+                       -6px -6px 12px rgba(255, 152, 0, 0.2);
+        }
+        
+        /* Specific action buttons (enable/disable) */
+        .action-btn.disable-btn {
+             background: var(--danger-color); 
+             color: #fff;
+             box-shadow: 4px 4px 8px rgba(244, 67, 54, 0.3),
+                        -4px -4px 8px rgba(244, 67, 54, 0.1);
+        }
+        .action-btn.enable-btn {
+             background: var(--success-color); 
+             color: #fff;
+             box-shadow: 4px 4px 8px rgba(76, 175, 80, 0.3),
+                        -4px -4px 8px rgba(76, 175, 80, 0.1);
+        }
+        .action-btn.disable-btn:hover, .action-btn.enable-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 12px rgba(0,0,0,0.15), 
+                       -6px -6px 12px rgba(255,255,255,0.3);
+        }
+        .action-btn.disable-btn:active, .action-btn.enable-btn:active {
+            box-shadow: inset 3px 3px 6px rgba(0,0,0,0.2), 
+                       inset -3px -3px 6px rgba(255,255,255,0.4);
+            transform: scale(0.98);
+        }
+
+        /* ---------- 5. Home Section - Quick Stats & Panels ---------- */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 25px;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent-color);
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .home-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .home-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .home-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .home-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            background: var(--bg-color);
+            box-shadow: 
+                inset 4px 4px 8px var(--shadow-dark), 
+                inset -4px -4px 8px var(--shadow-light);
+        }
+
+        .home-icon i {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+        }
+
+        .home-title {
+            font-weight: 700;
+            color: #333;
+            font-size: 1.25rem;
+        }
+        
+        .home-description {
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+        
+        .home-actions, .battery-actions, .preload-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: auto;
+        }
+
+        .home-btn, .battery-btn, .preload-btn {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        /* Preload specific styles */
+        .preload-textarea {
+            min-height: 120px;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+        .preload-status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: var(--radius-md);
+            text-align:center;
+            font-weight: 600;
+            color: #fff;
+            background-color: #888;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2);
+        }
+        .preload-status.running { background-color: var(--accent-color); }
+        .preload-status.success { background-color: var(--success-color); }
+        .preload-status.error { background-color: var(--danger-color); }
+        .preload-status.info { background-color: var(--accent-light); }
+        .preload-status.warning { background-color: var(--warning-color); color: #333; }
+
+        .preload-error-details, .package-validation {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: var(--radius-md);
+            background: var(--bg-color);
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--danger-color);
+            display: none;
+        }
+        .preload-error-details.show, .package-validation.show {
+            display: block;
+        }
+        .package-validation.validation-valid { color: var(--success-color); }
+        .package-validation.validation-invalid { color: var(--danger-color); }
+        .package-validation i { margin-right: 8px; }
+
+        .preload-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: var(--radius-md);
+            background: var(--bg-color);
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .preload-stats span {
+            padding: 5px 10px;
+            border-radius: 8px;
+            background: var(--bg-color);
+            box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light);
+        }
+        .preload-stats #stat-valid { color: var(--success-color); }
+        .preload-stats #stat-invalid { color: var(--danger-color); }
+
+        /* ---------- 6. Device Info Section ---------- */
+        .device-info-expanded {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+        
+        .device-info-header {
+             display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--shadow-dark);
+        }
+        
+        .device-info-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: var(--bg-color);
+            box-shadow: 
+                inset 3px 3px 6px var(--shadow-dark), 
+                inset -3px -3px 6px var(--shadow-light);
+        }
+        .device-info-icon i {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+        }
+        .device-info-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 5px;
+            border-bottom: 1px dashed rgba(0,0,0,0.05);
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .info-value {
+            font-weight: 600;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        /* ---------- 7. Package Manager Section ---------- */
+        .package-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .search-box, .preload-textarea {
+            flex: 1;
+            padding: 12px 18px;
+            border: none;
+            border-radius: var(--radius-md);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 0.95rem;
+            box-shadow: 
+                inset 4px 4px 8px var(--shadow-dark), 
+                inset -4px -4px 8px var(--shadow-light);
+            transition: all var(--trans-speed);
+        }
+        
+        .search-box:focus, .preload-textarea:focus {
+            outline: none;
+            box-shadow: 
+                inset 4px 4px 8px var(--shadow-dark), 
+                inset -4px -4px 8px var(--shadow-light),
+                0 0 0 2px var(--accent-color);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+        
+        .tab {
+            padding: 8px 15px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            background: var(--bg-color);
+            box-shadow: 2px 2px 5px var(--shadow-dark), -2px -2px 5px var(--shadow-light);
+            transition: all var(--trans-speed);
+        }
+        
+        .tab:hover {
+            transform: translateY(-2px);
+            color: var(--accent-color);
+        }
+
+        .tab.active {
+             box-shadow: 
+                inset 3px 3px 6px var(--shadow-dark), 
+                inset -3px -3px 6px var(--shadow-light);
+             color: var(--accent-color);
+             transform: translateY(0);
+        }
+        
+        .package-list-container {
+            padding: 15px;
+            border-radius: var(--radius-lg);
+            background: var(--bg-color);
+            box-shadow: 
+                inset 6px 6px 12px var(--shadow-dark), 
+                inset -6px -6px 12px var(--shadow-light);
+            max-height: 500px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .package-item {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: var(--radius-md);
+            background: var(--bg-color);
+            box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
+            transition: all var(--trans-speed);
+        }
+        .package-item:last-child { margin-bottom: 0; }
+        .package-item:hover {
+            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+            transform: translateY(-2px);
+        }
+
+        @media(min-width: 900px){
+             .package-item {
+                flex-direction: row;
+                align-items: center;
+             }
+        }
+        
+        .package-name {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+            word-break: break-all;
+        }
+        
+        .package-status-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 5px;
+        }
+        
+        .package-status {
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            color: #fff;
+            box-shadow: inset 1px 1px 3px rgba(0,0,0,0.1);
+        }
+        .status-enabled { background: var(--success-color); }
+        .status-disabled { background: #888; }
+        .status-system { background: var(--warning-color); }
+        .status-google { background: var(--accent-color); }
+        .status-user { background: #8a6cd6; } /* Softer purple for user apps */
+
+        /* ---------- 8. Terminal Section ---------- */
+        /* Removed .terminal-container and related styles */
+
+        /* ---------- 9. Developer Section ---------- */
+        .developer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .developer-card {
+            text-align: center;
+        }
+
+        .developer-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            background: var(--bg-color);
+            box-shadow: 
+                inset 6px 6px 12px var(--shadow-dark), 
+                inset -6px -6px 12px var(--shadow-light);
+            display: grid;
+            place-items: center;
+            position: relative;
+        }
+        
+        .developer-avatar i {
+            font-size: 3rem;
+            color: var(--accent-color);
+        }
+        
+        .developer-avatar.online::after {
+            content: '';
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--success-color);
+            border: 3px solid var(--bg-color);
+        }
+        
+        .developer-name { font-size: 1.5rem; font-weight: 800; color: #333; margin-bottom: 5px; }
+        .developer-username { color: var(--accent-color); font-weight: 600; margin-bottom: 10px; }
+        .developer-bio { max-width: 90%; margin: 15px auto; font-size: 0.9rem; }
+        
+        .skill-tags {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .skill-tag {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            background: var(--bg-color);
+            box-shadow: 
+                inset 2px 2px 4px var(--shadow-dark), 
+                inset -2px -2px 4px var(--shadow-light);
+            color: var(--text-color);
+        }
+        
+        .developer-links {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .developer-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent-color);
+            font-weight: 600;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: var(--radius-md);
+            background: var(--bg-color);
+            box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
+            transition: all var(--trans-speed);
+        }
+        .developer-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+        }
+        .developer-link i { font-size: 1.1rem; }
+
+        /* ---------- 10. Modals & Notifications ---------- */
+        .modal {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal.active { opacity: 1; visibility: visible; }
+        
+        .modal-content {
+            width: 100%;
+            max-width: 450px;
+            border-radius: var(--radius-lg);
+            padding: 25px;
+            background: var(--bg-color);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .modal.active .modal-content { transform: scale(1); }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--shadow-dark);
+        }
+        .modal-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: var(--bg-color);
+            box-shadow: 
+                inset 3px 3px 6px var(--shadow-dark), 
+                inset -3px -3px 6px var(--shadow-light);
+        }
+        .modal-icon i {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+        }
+        
+        .modal-title { font-size: 1.3rem; font-weight: 700; color: #333; }
+        .modal-text { font-size: 0.95rem; line-height: 1.5; color: #666; word-break: break-word; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 25px; }
+        
+        .modal-btn {
+            padding: 10px 20px;
+            font-size: 0.85rem;
+        }
+        .modal-btn-confirm { background-color: var(--accent-color); color: #fff; }
+        .modal-btn-confirm:hover { background-color: var(--accent-color); }
+        .modal-btn-cancel {
+            background: var(--bg-color);
+            color: var(--text-color);
+            box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
+        }
+        .modal-btn-cancel:hover { color: var(--danger-color); }
+
+        .notification {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 2200;
+            padding: 15px 20px;
+            border-radius: var(--radius-md);
+            color: #fff;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            transform: translateY(150%);
+            transition: transform 0.4s var(--trans-cubic), opacity 0.4s ease;
+            font-weight: 600;
+            min-width: 250px;
+            max-width: 90%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .notification.show { transform: translateY(0); opacity: 1; }
+        .notification.hide { opacity: 0; }
+        .notification.success { background-color: var(--success-color); }
+        .notification.error { background-color: var(--danger-color); }
+        .notification.info { background-color: var(--accent-color); }
+        .notification.warning { background-color: var(--warning-color); color: #333; }
+        .notification i { font-size: 1.1rem; }
+
+        /* ---------- 11. Responsive Design ---------- */
+        @media (max-width: 768px) {
+            .container { padding: 90px 15px 20px; }
+            .nav-tabs {
+                gap: 5px;
+                width: 100%;
+                justify-content: space-around;
+                padding: 8px;
+            }
+            .nav-tab { padding: 8px 10px; }
+            .nav-tab span { display: none; }
+            .nav-actions { display: none; }
+            .home-grid, .developer-grid, .device-info-expanded {
+                grid-template-columns: 1fr;
+            }
+            .quick-stats {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+            .preload-actions {
+                flex-direction: column;
+            }
+            .preload-btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div id="notification" class="notification"></div>
+    <div id="confirmation-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="modal-title">Confirm Action</div>
+            </div>
+            <div class="modal-body">
+                <p class="modal-text" id="modal-message">Are you sure you want to proceed?</p>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" id="modal-cancel">Cancel</button>
+                <button class="modal-btn btn-accent" id="modal-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-container">
+        <div class="nav-tabs">
+            <div class="nav-tab active" data-section="home"><i class="fas fa-home"></i> <span>Home</span></div>
+            <div class="nav-tab" data-section="device-info"><i class="fas fa-microchip"></i> <span>Device</span></div>
+            <div class="nav-tab" data-section="package-manager"><i class="fas fa-box-archive"></i> <span>Packages</span></div>
+            <div class="nav-tab" data-section="developer"><i class="fas fa-code-branch"></i> <span>Developer</span></div>
+        </div>
+        <div class="nav-actions">
+             <button class="btn" id="settings-btn" style="border-radius: 50%; width: 45px; height: 45px; padding: 0;">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <div id="home-section" class="section active">
+        
+<img src="/0d7ad21f-ff60-4422-8f3f-79d2da9d6aac.gif" alt="STAR-TWEAK Logo">
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-packages">0</div>
+                    <div class="stat-label">Total Packages</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-disabled">0</div>
+                    <div class="stat-label">Disabled Apps</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-root">No</div>
+                    <div class="stat-label">Root Status</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-android">-</div>
+                    <div class="stat-label">Android Version</div>
+                </div>
+            </div>
+
+            <div class="home-grid">
+                 <div class="home-card" style="grid-column: 1 / -1;">
+                    <div class="home-header">
+                        <div class="home-icon"><i class="fas fa-rocket"></i></div>
+                        <div class="home-title">Preload Tweak</div>
+                    </div>
+                    <div class="home-description">
+                        Optimize app performance by preloading libraries and evicting cache for selected packages.
+                    </div>
+                    <div class="preload-input-container">
+                        <textarea class="preload-textarea" id="preload-packages" placeholder="com.example.app1&#10;com.example.app2"></textarea>
+                    </div>
+                    <div class="preload-actions">
+                        <button class="preload-btn btn-success" id="run-preload"><i class="fas fa-play"></i> Run</button>
+                        <button class="preload-btn btn-danger" id="stop-preload" disabled><i class="fas fa-stop"></i> Stop</button>
+                        <button class="preload-btn btn-accent" id="validate-packages"><i class="fas fa-check-circle"></i> Validate</button>
+                    </div>
+                    <div class="preload-status" id="preload-status">Ready</div>
+                    <div id="preload-error-details" class="preload-error-details"></div>
+                    <div id="package-validation" class="package-validation"></div>
+                    <div class="preload-stats" id="preload-stats">
+                        <span id="stat-total">Total: 0</span>
+                        <span id="stat-valid">Valid: 0</span>
+                        <span id="stat-invalid">Invalid: 0</span>
+                    </div>
+                </div>
+                
+                <div class="home-card">
+                    <div class="home-header">
+                        <div class="home-icon"><i class="fas fa-bolt"></i></div>
+                        <div class="home-title">Main Actions</div>
+                    </div>
+                    <div class="home-description">Essential system optimization tools.</div>
+                    <div class="home-actions">
+                        <button class="home-btn btn-accent" data-cmd="sh /DIR/other/KILL"><i class="fas fa-skull-crossbones"></i> Kill Apps</button>
+                        <button class="home-btn btn-accent" data-cmd="sh /DIR/other/CPU_DBPerformance"><i class="fas fa-fighter-jet"></i> Main Tweak</button>
+                    </div>
+                </div>
+
+                <div class="home-card">
+                    <div class="home-header">
+                        <div class="home-icon"><i class="fas fa-microchip"></i></div>
+                        <div class="home-title">CPU</div>
+                    </div>
+                    <div class="home-description">Adjust CPU for performance or battery life.</div>
+                    <div class="home-actions">
+                        <button class="home-btn btn-accent" data-cmd="sh /DIR/other/CPU_Performance"><i class="fas fa-rocket"></i> Performance</button>
+                        <button class="home-btn btn-accent" data-cmd="sh /DIR/other/CPU_PowerSave"><i class="fas fa-leaf"></i> Power Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="device-info-section" class="section">
+            <div class="device-info-expanded">
+                    <div class="device-info-card">
+                        <div class="device-info-header"><div class="device-info-icon"><i class="fas fa-mobile-alt"></i></div><h3 class="device-info-title">System</h3></div>
+                        <div class="device-info-content">
+                            <div class="info-row"><span class="info-label">Android Version</span><span class="info-value" id="android-version">-</span></div>
+                            <div class="info-row"><span class="info-label">Kernel</span><span class="info-value" id="kernel-version">-</span></div>
+                            <div class="info-row"><span class="info-label">Root Status</span><span class="info-value" id="root-status">-</span></div>
+                            <div class="info-row"><span class="info-label">Build ID</span><span class="info-value" id="build-id">-</span></div>
+                        </div>
+                    </div>
+                     <div class="device-info-card">
+                        <div class="device-info-header"><div class="device-info-icon"><i class="fas fa-server"></i></div><h3 class="device-info-title">Hardware</h3></div>
+                        <div class="device-info-content">
+                            <div class="info-row"><span class="info-label">Model</span><span class="info-value" id="device-model">-</span></div>
+                            <div class="info-row"><span class="info-label">Chipset</span><span class="info-value" id="chipset">-</span></div>
+                            <div class="info-row"><span class="info-label">CPU Cores</span><span class="info-value" id="cpu-cores">-</span></div>
+                            <div class="info-row"><span class="info-label">RAM</span><span class="info-value" id="device-ram">-</span></div>
+                        </div>
+                    </div>
+                    <div class="device-info-card">
+                        <div class="device-info-header"><div class="device-info-icon"><i class="fas fa-battery-full"></i></div><h3 class="device-info-title">Status</h3></div>
+                        <div class="device-info-content">
+                            <div class="info-row"><span class="info-label">Battery</span><span class="info-value" id="device-battery">-</span></div>
+                            <div class="info-row"><span class="info-label">Uptime</span><span class="info-value" id="device-uptime">-</span></div>
+                            <div class="info-row"><span class="info-label">Total Packages</span><span class="info-value" id="info-packages">0</span></div>
+                            <div class="info-row"><span class="info-label">Disabled Packages</span><span class="info-value" id="info-disabled">0</span></div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+
+        <div id="package-manager-section" class="section">
+            <div class="card">
+                <div class="package-controls">
+                    <input type="text" class="search-box" id="package-search" placeholder="Search packages...">
+                    <button class="btn btn-accent" id="load-packages"><i class="fas fa-sync"></i> Load Packages</button>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab active" data-tab="all">All</div>
+                    <div class="tab" data-tab="system">System</div>
+                    <div class="tab" data-tab="user">User</div>
+                    <div class="tab" data-tab="disabled">Disabled</div>
+                    <div class="tab" data-tab="google">Google</div>
+                </div>
+
+                <div class="package-info" style="margin-bottom: 15px; font-weight: 500;">
+                    <span id="package-count">No packages loaded</span>
+                </div>
+
+                <div class="package-list-container">
+                    <div id="package-list" style="text-align: center; padding: 40px 0; color: var(--text-color);">
+                        Click "Load Packages" to begin.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="developer-section" class="section">
+             <div class="developer-grid">
+                <div class="developer-card">
+                    <div class="developer-avatar online"><i class="fas fa-user-astronaut"></i></div>
+                    <div class="developer-name">Andi Rakagooning</div>
+                    <div class="developer-username">@Koneko_Dev</div>
+                    <div class="developer-bio">
+                        Creating powerful tools for Android customization and optimization. Passionate about open source and community-driven development.
+                    </div>
+                     <div class="skill-tags">
+                        <span class="skill-tag">Android</span>
+                        <span class="skill-tag">KernelSU</span>
+                        <span class="skill-tag">JavaScript</span>
+                        <span class="skill-tag">Web UI</span>
+                    </div>
+                    <div class="developer-links">
+                        <a href="#" class="developer-link" data-github="https://github.com/startweak"><i class="fab fa-github"></i> GitHub</a>
+                        <a href="#" class="developer-link" data-telegram="https://t.me/Droid_ch"><i class="fab fa-telegram"></i> Telegram</a>
+                    </div>
+                </div>
+                <div class="developer-card">
+                    <div class="developer-avatar"><i class="fas fa-users"></i></div>
+                    <div class="developer-name">Contributors</div>
+                    <div class="developer-username">@Community</div>
+                    <div class="developer-bio">
+                        Thanks to all contributors who help improve STAR-TWEAK with bug fixes, features, and documentation.
+                    </div>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Testing</span>
+                        <span class="skill-tag">Bug Reports</span>
+                        <span class="skill-tag">Feature Ideas</span>
+                        <span class="skill-tag">Support</span>
+                    </div>
+                    <div class="developer-links">
+                        <a href="#" class="developer-link" data-issues="https://github.com/startweak/star-tweak/issues"><i class="fas fa-bug"></i> Report Issues</a>
+                        <a href="#" class="developer-link" data-discord="https://discord.gg/Star-Tweak"><i class="fab fa-discord"></i> Discord</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+<script type="module">
+        import { exec, fullScreen } from "https://cdn.jsdelivr.net/npm/kernelsu@1.0.6/+esm";
+        
+        // Ensure full screen is enabled for a better experience
+        fullScreen(true);
+        
+        // Global state variables
+        let allPackages = [];
+        let filteredPackages = [];
+        let currentTab = 'all';
+        // Removed commandHistory and historyIndex
+        let preloadRunning = false; 
+        let preloadStats = { total: 0, valid: 0, invalid: 0, errors: [] };
+        let activeButtons = new Set();
+        
+        // Persistent status file path
+        const PRELOAD_STATUS_FILE = '/data/local/tmp/star_tweak_preload.status';
+
+        // DOM Element references
+        const DOMElements = {
+            navTabs: document.querySelectorAll('.nav-tab'),
+            sections: document.querySelectorAll('.section'),
+            modal: document.getElementById('confirmation-modal'),
+            modalMessage: document.getElementById('modal-message'),
+            modalConfirm: document.getElementById('modal-confirm'),
+            modalCancel: document.getElementById('modal-cancel'),
+            notification: document.getElementById('notification'),
+            preloadPackagesInput: document.getElementById('preload-packages'),
+            runPreloadBtn: document.getElementById('run-preload'),
+            stopPreloadBtn: document.getElementById('stop-preload'),
+            preloadStatus: document.getElementById('preload-status'),
+            preloadErrorDetails: document.getElementById('preload-error-details'),
+            validatePackagesBtn: document.getElementById('validate-packages'),
+            packageValidation: document.getElementById('package-validation'),
+            preloadStatsElement: document.getElementById('preload-stats'),
+            statTotal: document.getElementById('stat-total'),
+            statValid: document.getElementById('stat-valid'),
+            statInvalid: document.getElementById('stat-invalid'),
+            packageSearch: document.getElementById('package-search'),
+            loadPackagesBtn: document.getElementById('load-packages'),
+            packageTabs: document.querySelectorAll('.tabs .tab'),
+            packageList: document.getElementById('package-list'),
+            packageCount: document.getElementById('package-count'),
+            // Removed terminalInput and terminalOutput
+            // Removed terminalClearBtn
+            settingsBtn: document.getElementById('settings-btn')
+        };
+        
+        /* -------------------- UTILITY FUNCTIONS -------------------- */
+        
+        function safeSetText(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text;
+        }
+
+        function updateButtonState(btnId, html, disabled, isActive) {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            btn.innerHTML = html;
+            btn.disabled = disabled;
+            if (isActive) {
+                activeButtons.add(btnId);
+            } else {
+                activeButtons.delete(btnId);
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const { notification } = DOMElements;
+            if (!notification) return;
+
+            let icon = '';
+            switch(type) {
+                case 'success': icon = '<i class="fas fa-check-circle"></i>'; break;
+                case 'error': icon = '<i class="fas fa-times-circle"></i>'; break;
+                case 'info': icon = '<i class="fas fa-info-circle"></i>'; break;
+                case 'warning': icon = '<i class="fas fa-exclamation-triangle"></i>'; break;
+            }
+
+            notification.innerHTML = `${icon} ${message}`;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                notification.classList.add('hide');
+                setTimeout(() => notification.classList.remove('hide'), 400);
+            }, 5000);
+        }
+
+        let pendingAction = null;
+        let pendingCancelAction = null;
+        function showModal(message, confirmCallback, cancelCallback = null) {
+            DOMElements.modalMessage.innerHTML = message;
+            pendingAction = confirmCallback;
+            pendingCancelAction = cancelCallback;
+            DOMElements.modal.classList.add('active');
+        }
+        
+        function hideModal() {
+            DOMElements.modal.classList.remove('active');
+            pendingAction = null;
+            pendingCancelAction = null;
+        }
+        
+        // Event Listeners for Modal
+        DOMElements.modalConfirm.addEventListener('click', () => {
+            if (pendingAction) pendingAction();
+            hideModal();
+        });
+        DOMElements.modalCancel.addEventListener('click', () => {
+            if (pendingCancelAction) pendingCancelAction();
+            hideModal();
+        });
+
+        function initializeNavigation() {
+            DOMElements.navTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const sectionId = tab.dataset.section;
+                    DOMElements.navTabs.forEach(nav => nav.classList.remove('active'));
+                    tab.classList.add('active');
+                    DOMElements.sections.forEach(section => {
+                        section.classList.remove('active');
+                        if (section.id === `${sectionId}-section`) {
+                            section.classList.add('active');
+                        }
+                    });
+                    // Removed terminal focus logic
+                });
+            });
+        }
+
+        /* -------------------- HOME SECTION LOGIC (PRELOAD) -------------------- */
+        
+        /** * Check and load persistent preload status. 
+         * MODIFIED: Uses 'ps -A | grep vmt | grep -v grep' for real process detection.
+         */
+        async function checkPreloadStatus() {
+            try {
+                // 1. Check for the status file
+                const fileCheck = await exec(`[ -f ${PRELOAD_STATUS_FILE} ] && echo "exists" || echo "not_found"`);
+                const fileExists = fileCheck.stdout?.trim() === 'exists';
+                
+                // 2. Check if the vmt process is actively running using 'ps -A | grep vmt'
+                let processIsRunning = false;
+                try {
+                    // Gunakan ps -A | grep vmt | grep -v grep untuk memastikan vmt sedang berjalan
+                    // Ini adalah implementasi real-check yang diminta
+                    const psResult = await exec(`ps -A | grep vmt | grep -v grep`);
+                    
+                    // Jika output berisi baris selain baris 'grep' itu sendiri, berarti proses ditemukan.
+                    if (psResult.stdout && psResult.stdout.trim() !== '') {
+                        processIsRunning = true;
+                    } else {
+                        processIsRunning = false;
+                    }
+                } catch (e) {
+                    processIsRunning = false;
+                }
+                
+                // 3. Update global state and UI
+                if (fileExists || processIsRunning) {
+                    preloadRunning = true;
+                    DOMElements.preloadStatus.textContent = processIsRunning ? '⚡ Running in background).' : '⚠️ Previously running, status file found.';
+                    DOMElements.preloadStatus.className = 'preload-status running';
+                    updateButtonState('run-preload', '<i class="fas fa-play"></i> Running', true, true);
+                    DOMElements.stopPreloadBtn.disabled = false;
+                    if (processIsRunning) {
+                        showNotification('Preload Tweak is running in the background.', 'info');
+                    }
+                } else {
+                    preloadRunning = false;
+                    DOMElements.preloadStatus.textContent = 'Ready';
+                    DOMElements.preloadStatus.className = 'preload-status info';
+                    updateButtonState('run-preload', '<i class="fas fa-play"></i> Run', false, false);
+                    DOMElements.stopPreloadBtn.disabled = true;
+                    // Cleanup: Ensure the status file is deleted if the process is gone but the file remained
+                    await exec(`rm -f ${PRELOAD_STATUS_FILE}`);
+                }
+            } catch (error) {
+                 console.error('Error checking preload status:', error);
+                 DOMElements.preloadStatus.textContent = 'Ready (Status Check Failed)';
+                 DOMElements.preloadStatus.className = 'preload-status warning';
+                 preloadRunning = false;
+                 updateButtonState('run-preload', '<i class="fas fa-play"></i> Run', false, false);
+                 DOMElements.stopPreloadBtn.disabled = true;
+            }
+        }
+
+
+        /** Updates the preload stats display. */
+        function updatePreloadStatsDisplay() {
+            DOMElements.statTotal.textContent = `Total: ${preloadStats.total}`;
+            DOMElements.statValid.textContent = `Valid: ${preloadStats.valid}`;
+            DOMElements.statInvalid.textContent = `Invalid: ${preloadStats.invalid}`;
+            DOMElements.preloadStatsElement.style.display = preloadStats.total > 0 ? 'flex' : 'none';
+        }
+
+        /**
+         * Displays error details in a dedicated area.
+         * @param {string[]} errors - Array of error messages.
+         * @param {string} title - Title for the error section.
+         */
+        function showPreloadErrorDetails(errors, title) {
+            DOMElements.preloadErrorDetails.innerHTML = `<strong>${title}:</strong><br>${errors.map((e,i)=>`${i+1}. ${e}`).join('<br>')}`;
+            DOMElements.preloadErrorDetails.classList.add('show');
+        }
+
+        /**
+         * Validates a list of package names using 'pm path' which is more definitive.
+         * MODIFIED: Menggunakan 'pm path' untuk akurasi validasi sistem paket.
+         * @param {string[]} packages - Array of package names.
+         * @returns {Promise<{valid: string[], invalid: string[]}>} - Object with valid and invalid packages.
+         */
+        async function validatePackages(packages) {
+            const valid = [], invalid = [];
+            for (const pkg of packages) {
+                try {
+                    // Gunakan `pm path` untuk memeriksa keberadaan path APK.
+                    const result = await exec(`pm path "${pkg}"`);
+                    
+                    // Jika output dimulai dengan 'package:', berarti paket ditemukan.
+                    if (result.stdout && result.stdout.trim().startsWith('package:')) {
+                        valid.push(pkg);
+                    } 
+                    // Jika ada error di stderr, berarti paket tidak ditemukan (misalnya 'Package X not found.')
+                    else if (result.stderr) {
+                         invalid.push(`${pkg} - ${result.stderr.trim().split('\n')[0]}`);
+                    }
+                    else {
+                        invalid.push(`${pkg} - Not found or empty path returned`);
+                    }
+
+                } catch (error) {
+                    invalid.push(`${pkg} - Check failed (Shell Error): ${error.message}`);
+                }
+            }
+            return { valid, invalid };
+        }
+
+        /**
+         * Processes a single package using the vmt tool in non-blocking mode.
+         * MODIFIED: Removed silent redirection (>/dev/null 2>&1) for better error reporting.
+         * @param {string} pkg - The package name to process.
+         * @returns {Promise<{success: boolean, error: string|null}>}
+         */
+        async function processPackage(pkg) {
+            const errors = [];
+            const VMT_PATH = '/data/local/tmp/vmt';
+            try {
+                const appPathResult = await exec(`pm path "${pkg}"`);
+                if (!appPathResult.stdout) throw new Error('Package path not found');
+                
+                const appPaths = appPathResult.stdout.split('\n').filter(line => line.startsWith('package:')).map(line => line.substring(8));
+                
+                // Preload APKs (-L)
+                for (const apk of appPaths) {
+                    if (!preloadRunning) break;
+                    try { 
+                        // Jalankan di latar belakang (&) dan cek stderr untuk error shell
+                        const result = await exec(`${VMT_PATH} -L "${apk}" &`); 
+                        if (result.stderr) errors.push(`APK ${apk}: Shell Error: ${result.stderr.trim()}`);
+                    } catch (e) { 
+                        errors.push(`APK ${apk}: Execution failed: ${e.message}`); 
+                    }
+                }
+
+                // Preload .so libraries (-l)
+                if (appPaths.length > 0 && preloadRunning) {
+                    const firstApkDir = appPaths[0].substring(0, appPaths[0].lastIndexOf('/'));
+                    const libDirs = [
+                        `${firstApkDir}/lib`, 
+                        `${firstApkDir}/lib64`
+                    ];
+
+                    for (const libPath of libDirs) {
+                        if (!preloadRunning) break;
+                        try {
+                            const dirExists = await exec(`[ -d "${libPath}" ] && echo "exists" || echo "not_found"`);
+                            if (dirExists.stdout?.includes('exists')) {
+                                const findResult = await exec(`find "${libPath}" -type f -name "*.so" 2>/dev/null`);
+                                if (findResult.stdout) {
+                                    const soFiles = findResult.stdout.split('\n').filter(Boolean);
+                                    for (const soFile of soFiles) {
+                                        if (!preloadRunning) break;
+                                        try { 
+                                            const result = await exec(`${VMT_PATH} -l "${soFile}" &`); 
+                                            if (result.stderr) errors.push(`Lib ${soFile}: Shell Error: ${result.stderr.trim()}`);
+                                        } catch (e) { 
+                                            errors.push(`Lib ${soFile}: Execution failed: ${e.message}`); 
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (e) { errors.push(`Lib scan (${libPath}): ${e.message}`); }
+                    }
+                }
+
+                // Evict cache for assets (-ef)
+                if (preloadRunning) {
+                    const assetPath = `/sdcard/Android/data/${pkg}/`;
+                    try { 
+                        const result = await exec(`${VMT_PATH} -ef "${assetPath}" &`); 
+                        if (result.stderr) errors.push(`Assets ${assetPath}: Shell Error: ${result.stderr.trim()}`);
+                    } catch (e) { 
+                        errors.push(`Assets ${assetPath}: Execution failed: ${e.message}`); 
+                    }
+                }
+                
+                // Short delay to ensure background process is registered before loop continues
+                await new Promise(resolve => setTimeout(resolve, 50)); 
+                
+                return { success: errors.length === 0, error: errors.join('; ') || null };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        /** Runs the preload tweak process. */
+        async function runPreloadTweak() {
+            if (preloadRunning) {
+                return showNotification('⚠️ Preload is already running or a process is active.', 'warning');
+            }
+            
+            const packagesText = DOMElements.preloadPackagesInput.value.trim();
+            if (!packagesText) {
+                return showNotification('❌ Please enter at least one package name to preload.', 'error');
+            }
+            
+            const packages = packagesText.split('\n').map(pkg => pkg.trim()).filter(Boolean);
+            if (packages.length === 0) {
+                return showNotification('❌ Please enter at least one valid package name.', 'error');
+            }
+            
+            // Set initial state
+            preloadStats = { total: packages.length, valid: 0, invalid: 0, errors: [] };
+            updatePreloadStatsDisplay();
+            DOMElements.preloadErrorDetails.classList.remove('show');
+            DOMElements.preloadErrorDetails.innerHTML = '';
+            
+            updateButtonState('run-preload', '<i class="fas fa-spinner fa-spin"></i> Running...', true, true);
+            DOMElements.stopPreloadBtn.disabled = false;
+            DOMElements.preloadStatus.textContent = '🔍 Validating packages...';
+            DOMElements.preloadStatus.className = 'preload-status running';
+            preloadRunning = true;
+            
+            try {
+                // Create status file to indicate process is active
+                await exec(`echo "running" > ${PRELOAD_STATUS_FILE}`);
+                
+                // Check if vmt binary exists
+                const vmtCheck = await exec('[ -f /data/local/tmp/vmt ] && echo "exists" || echo "not_found"');
+                if (vmtCheck.stdout?.includes('not_found')) {
+                    throw new Error('vmt binary not found at /data/local/tmp/vmt. Please ensure it\'s installed.');
+                }
+                
+                DOMElements.preloadStatus.textContent = '🔍 Validating package existence...';
+                const validationResults = await validatePackages(packages);
+                
+                preloadStats.valid = validationResults.valid.length;
+                preloadStats.invalid = validationResults.invalid.length;
+                updatePreloadStatsDisplay();
+
+                if (validationResults.invalid.length > 0) {
+                    preloadStats.errors.push(`❌ ${validationResults.invalid.length} invalid packages found.`);
+                    showPreloadErrorDetails(validationResults.invalid, 'Invalid Packages');
+                }
+
+                if (validationResults.valid.length === 0) {
+                    throw new Error('No valid packages to process. Check invalid package details.');
+                }
+                
+                let processedCount = 0;
+                let successfulCount = 0;
+
+                for (const pkg of validationResults.valid) {
+                    if (!preloadRunning) break;
+                    
+                    DOMElements.preloadStatus.textContent = `🔄 Processing ${pkg}... (${processedCount + 1}/${validationResults.valid.length})`;
+                    try {
+                        const result = await processPackage(pkg);
+                        if (result.success) {
+                            successfulCount++;
+                        } else {
+                            preloadStats.errors.push(`❌ ${pkg}: ${result.error || 'Unknown error'}`);
+                        }
+                    } catch (error) {
+                        preloadStats.errors.push(`❌ ${pkg}: ${error.message}`);
+                    }
+                    processedCount++;
+                }
+
+                if (preloadRunning) {
+                    if (successfulCount > 0) {
+                        DOMElements.preloadStatus.textContent = `✅ Completed! ${successfulCount}/${processedCount} successful.`;
+                        DOMElements.preloadStatus.className = 'preload-status success';
+                        let msg = `✅ Preload completed for ${successfulCount} package(s)`;
+                        if (preloadStats.errors.length > 0) msg += ` (${preloadStats.errors.length} errors occurred).`;
+                        showNotification(msg, preloadStats.errors.length > 0 ? 'warning' : 'success');
+                    } else {
+                        DOMElements.preloadStatus.textContent = '❌ All packages failed.';
+                        DOMElements.preloadStatus.className = 'preload-status error';
+                        showNotification('❌ All valid packages failed during preload. Check error details.', 'error');
+                    }
+                    await exec(`rm -f ${PRELOAD_STATUS_FILE}`);
+
+                } else {
+                    DOMElements.preloadStatus.textContent = ' Stopped by user.';
+                    DOMElements.preloadStatus.className = 'preload-status info';
+                    showNotification('Preload stopped.', 'info');
+                }
+
+                if (preloadStats.errors.length > 0) {
+                    showPreloadErrorDetails(preloadStats.errors, 'Processing & Validation Errors');
+                }
+
+            } catch (error) {
+                console.error('Error running preload tweak:', error);
+                DOMElements.preloadStatus.textContent = '❌ Error running optimization.';
+                DOMElements.preloadStatus.className = 'preload-status error';
+                let errMsg = `❌ ${error.message}`;
+                showNotification(errMsg, 'error');
+                preloadStats.errors.push(`System Error: ${error.message}`);
+                showPreloadErrorDetails(preloadStats.errors, 'System Errors');
+                await exec(`rm -f ${PRELOAD_STATUS_FILE}`);
+            } finally {
+                updateButtonState('run-preload', '<i class="fas fa-play"></i> Run', false, false);
+                DOMElements.stopPreloadBtn.disabled = true;
+                preloadRunning = false;
+            }
+        }
+
+        /** Stops the preload tweak process by killing all vmt processes. */
+        async function stopPreloadTweak() {
+            if (activeButtons.has('stop-preload')) return;
+            updateButtonState('stop-preload', '<i class="fas fa-spinner fa-spin"></i> Stopping...', true, true);
+            
+            if (!preloadRunning) {
+                DOMElements.preloadStatus.textContent = 'Already stopped.';
+                DOMElements.preloadStatus.className = 'preload-status info';
+                updateButtonState('stop-preload', '<i class="fas fa-stop"></i> Stop', true, false);
+                return;
+            }
+            
+            try {
+                preloadRunning = false;
+                DOMElements.preloadStatus.textContent = 'Stopping background processes...';
+                DOMElements.preloadStatus.className = 'preload-status info';
+                
+                // Kill all vmt processes forcefully and remove status file
+                await Promise.all([
+                    exec(`pkill -f vmt > /dev/null 2>&1 || true`),
+                    exec(`rm -f ${PRELOAD_STATUS_FILE}`)
+                ]);
+              
+                await new Promise(resolve => setTimeout(resolve, 500)); 
+                
+                DOMElements.preloadStatus.textContent = 'Successfully stopped and cleaned up.';
+                DOMElements.preloadStatus.className = 'preload-status info';
+                showNotification('Preload stopped by user.', 'info');
+            } catch (error) {
+                console.error('Error stopping preload tweak:', error);
+                if (!/No such process|argument list too long/i.test(error.message)) {
+                     DOMElements.preloadStatus.textContent = '❌ Error stopping processes.';
+                     DOMElements.preloadStatus.className = 'preload-status error';
+                     showNotification(`❌ Error stopping processes: ${error.message}`, 'error');
+                }
+            } finally {
+                updateButtonState('run-preload', '<i class="fas fa-play"></i> Run', false, false);
+                updateButtonState('stop-preload', '<i class="fas fa-stop"></i> Stop', true, false);
+            }
+        }
+
+        /** Validates packages based on user input, without running preload. */
+        async function validatePackagesOnDemand() {
+            if (activeButtons.has('validate-packages')) return;
+            updateButtonState('validate-packages', '<i class="fas fa-spinner fa-spin"></i> Validating...', true, true);
+            
+            const packagesText = DOMElements.preloadPackagesInput.value.trim();
+            if (!packagesText) {
+                DOMElements.packageValidation.innerHTML = '❌ Enter package names first.';
+                DOMElements.packageValidation.className = 'package-validation validation-invalid show';
+                DOMElements.preloadStatsElement.style.display = 'none';
+                updateButtonState('validate-packages', '<i class="fas fa-clipboard-check"></i> Validate', false, false);
+                return;
+            }
+            const packages = packagesText.split('\n').map(pkg => pkg.trim()).filter(Boolean);
+            
+            DOMElements.packageValidation.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validating...';
+            DOMElements.packageValidation.className = 'package-validation show';
+            DOMElements.preloadErrorDetails.classList.remove('show');
+            DOMElements.preloadErrorDetails.innerHTML = '';
+
+            try {
+                const results = await validatePackages(packages);
+                preloadStats = { total: packages.length, valid: results.valid.length, invalid: results.invalid.length, errors: [] };
+                updatePreloadStatsDisplay();
+
+                if (results.invalid.length === 0) {
+                    DOMElements.packageValidation.innerHTML = `✅ All ${results.valid.length} packages are valid.`;
+                    DOMElements.packageValidation.className = 'package-validation validation-valid show';
+                    showNotification('All packages validated successfully!', 'success');
+                } else {
+                    DOMElements.packageValidation.innerHTML = `⚠️ ${results.valid.length} valid, ${results.invalid.length} invalid.`;
+                    DOMElements.packageValidation.className = 'package-validation validation-invalid show';
+                    showPreloadErrorDetails(results.invalid, 'Invalid Packages Found');
+                    showNotification('Some packages are invalid. Check details.', 'warning');
+                }
+            } catch (error) {
+                DOMElements.packageValidation.innerHTML = '❌ Validation failed.';
+                DOMElements.packageValidation.className = 'package-validation validation-invalid show';
+                showNotification(`❌ Validation failed: ${error.message}`, 'error');
+            } finally {
+                updateButtonState('validate-packages', '<i class="fas fa-clipboard-check"></i> Validate', false, false);
+            }
+        }
+        
+        // Event Listeners for Preload Section
+        DOMElements.runPreloadBtn?.addEventListener('click', () => {
+            if (activeButtons.has('run-preload')) return;
+            activeButtons.add('run-preload');
+            showModal('Are you sure you want to run the Preload Tweak? This might affect system performance temporarily.', runPreloadTweak, () => {
+                activeButtons.delete('run-preload');
+            });
+        });
+        
+        DOMElements.stopPreloadBtn?.addEventListener('click', stopPreloadTweak);
+        
+        DOMElements.validatePackagesBtn?.addEventListener('click', validatePackagesOnDemand);
+        
+        DOMElements.preloadPackagesInput?.addEventListener('input', () => {
+            const packages = DOMElements.preloadPackagesInput.value.trim().split('\n').filter(Boolean);
+            preloadStats.total = packages.length;
+            updatePreloadStatsDisplay();
+            DOMElements.packageValidation.classList.remove('show');
+            DOMElements.preloadErrorDetails.classList.remove('show');
+        });
+
+        /* -------------------- DEVICE INFO SECTION LOGIC -------------------- */
+
+        async function updateSystemInfo() {
+            try {
+                const getInfo = async (cmd, id, prefix = '', suffix = '') => {
+                    try {
+                        const res = await exec(cmd);
+                        const val = res.stdout?.trim();
+                        if (val) safeSetText(id, `${prefix}${val}${suffix}`);
+                    } catch(e) { /* silent fail */ }
+                };
+                
+                await getInfo('getprop ro.build.version.release', 'android-version');
+                await getInfo('getprop ro.build.version.release', 'stat-android');
+                await getInfo('uname -r', 'kernel-version');
+                
+                const rootRes = await exec('which su');
+                const isRooted = rootRes.stdout?.trim() ? 'Yes' : 'No';
+                safeSetText('root-status', isRooted === 'Yes' ? 'Rooted' : 'Not Rooted');
+                safeSetText('stat-root', isRooted);
+
+                const disabledRes = await exec('pm list packages -d');
+                const disabledCount = disabledRes.stdout?.split('\n').filter(l => l.startsWith('package:')).length || 0;
+                safeSetText('stat-disabled', disabledCount);
+                safeSetText('info-disabled', disabledCount);
+
+                await getInfo('getprop ro.board.platform', 'chipset');
+                await getInfo('cat /proc/cpuinfo | grep processor | wc -l', 'cpu-cores', '', ' cores');
+                await getInfo('getprop ro.product.model', 'device-model');
+                await getInfo('getprop ro.build.display.id', 'build-id');
+
+                const ramRes = await exec('cat /proc/meminfo | grep MemTotal');
+                const ramMatch = ramRes.stdout?.match(/(\d+)/);
+                if (ramMatch) safeSetText('device-ram', `${(parseInt(ramMatch[1]) / 1024 / 1024).toFixed(1)} GB`);
+
+                const battRes = await exec('dumpsys battery | grep level');
+                const battMatch = battRes.stdout?.match(/level: (\d+)/);
+                if (battMatch) safeSetText('device-battery', `${battMatch[1]}%`);
+                
+                const uptimeRes = await exec('cat /proc/uptime');
+                const uptimeMatch = uptimeRes.stdout?.match(/(\d+)\.\d+/);
+                if (uptimeMatch) {
+                    const totalSeconds = parseInt(uptimeMatch[1]);
+                    const hours = Math.floor(totalSeconds / 3600);
+                    const minutes = Math.floor((totalSeconds % 3600) / 60);
+                    safeSetText('device-uptime', `${hours}h ${minutes}m`);
+                }
+                
+                if (allPackages.length > 0) {
+                    safeSetText('stat-packages', allPackages.length);
+                    safeSetText('info-packages', allPackages.length);
+                }
+            } catch (error) {
+                console.error('Error fetching system info:', error);
+            }
+        }
+        
+        /* -------------------- PACKAGE MANAGER SECTION LOGIC -------------------- */
+
+        /** Loads all packages from the system. */
+        async function loadAllPackages() {
+            if (activeButtons.has('load-packages')) return;
+            updateButtonState('load-packages', '<i class="fas fa-spinner fa-spin"></i> Loading...', true, true);
+            
+            const { packageList } = DOMElements;
+            packageList.innerHTML = `<div style="padding: 40px 0; text-align: center;"><i class="fas fa-spinner fa-spin"></i> Loading packages, please wait...</div>`;
+
+            try {
+                // Use pm list packages -f to get path and package name simultaneously for all packages
+                const [all, disabled] = await Promise.all([
+                    exec('pm list packages -f -u'), // -f for path, -u for all users (more complete list)
+                    exec('pm list packages -d')
+                ]);
+                const disabledSet = new Set(disabled.stdout?.split('\n').map(l => l.substring(8)) || []);
+                const packageLines = all.stdout?.split('\n').filter(l => l.startsWith('package:')) || [];
+                
+                allPackages = packageLines.map(line => {
+                    // Example: package:/system/app/SdkSetup.apk=com.android.sdksetup
+                    const [pathFull, name] = line.split('=');
+                    const path = pathFull.substring(8); // Remove "package:"
+                    
+                    const isSystem = /^\/(system|vendor|product|system_ext|oem|odm)\//.test(path);
+                    const isGoogle = name.startsWith('com.google.') || name.includes('vending') || name.includes('gms');
+                    return { name, path, system: isSystem, google: isGoogle, enabled: !disabledSet.has(name) };
+                });
+                
+                allPackages.sort((a, b) => a.name.localeCompare(b.name));
+                filterPackages();
+                safeSetText('stat-packages', allPackages.length);
+                safeSetText('info-packages', allPackages.length);
+                showNotification(`Loaded ${allPackages.length} packages.`, 'success');
+            } catch (error) {
+                console.error('Error loading packages:', error);
+                packageList.innerHTML = `<div style="padding: 40px 0; text-align: center; color: var(--danger-color);"><i class="fas fa-exclamation-triangle"></i> Failed to load packages. Ensure KernelSU permissions.</div>`;
+                showNotification(`❌ Error loading packages: ${error.message}`, 'error');
+            } finally {
+                updateButtonState('load-packages', '<i class="fas fa-sync"></i> Load Packages', false, false);
+            }
+        }
+        
+        /** Filters packages based on search term and current tab. */
+        function filterPackages() {
+            const searchTerm = DOMElements.packageSearch?.value.toLowerCase() || '';
+            filteredPackages = allPackages.filter(pkg => {
+                const matchesSearch = pkg.name.toLowerCase().includes(searchTerm);
+                switch(currentTab) {
+                    case 'system': return matchesSearch && pkg.system;
+                    case 'user': return matchesSearch && !pkg.system;
+                    case 'disabled': return matchesSearch && !pkg.enabled;
+                    case 'google': return matchesSearch && pkg.google;
+                    default: return matchesSearch;
+                }
+            });
+            renderPackageList();
+        }
+        
+        /** Renders the filtered package list to the DOM. */
+        function renderPackageList() {
+            const { packageList, packageCount } = DOMElements;
+            if (!packageList || !packageCount) return;
+            
+            if (filteredPackages.length === 0 && allPackages.length === 0) {
+                 packageList.innerHTML = `<div style="padding: 40px 0; text-align: center;">Click "Load Packages" to begin.</div>`;
+                 packageCount.textContent = `No packages loaded.`;
+            } else if (filteredPackages.length === 0) {
+                packageList.innerHTML = `<div style="padding: 40px 0; text-align: center;">No packages found matching current filter/search.</div>`;
+                packageCount.textContent = `Showing 0 of ${allPackages.length} packages.`;
+            } else {
+                packageList.innerHTML = filteredPackages.map(pkg => `
+                    <div class="package-item">
+                        <div style="flex-grow:1;">
+                            <div class="package-name">${pkg.name}</div>
+                            <div class="package-status-container">
+                                <span class="package-status ${pkg.enabled ? 'status-enabled' : 'status-disabled'}">${pkg.enabled ? 'Enabled' : 'Disabled'}</span>
+                                ${pkg.system ? '<span class="package-status status-system">System</span>' : '<span class="package-status status-user">User</span>'}
+                                ${pkg.google ? '<span class="package-status status-google">Google</span>' : ''}
+                            </div>
+                        </div>
+                        <div class="package-actions">
+                            ${pkg.enabled ? 
+                                `<button class="action-btn disable-btn" data-package="${pkg.name}">Disable</button>` : 
+                                `<button class="action-btn enable-btn" data-package="${pkg.name}">Enable</button>`
+                            }
+                        </div>
+                    </div>`).join('');
+                packageCount.textContent = `Showing ${filteredPackages.length} of ${allPackages.length} packages.`;
+            }
+        }
+        
+        // Event Listener for package enable/disable actions
+        DOMElements.packageList?.addEventListener('click', async e => {
+            const btn = e.target.closest('.action-btn');
+            if (!btn) return;
+            
+            const pkgName = btn.dataset.package;
+            const isDisabling = btn.classList.contains('disable-btn');
+            const originalHTML = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+            
+            const actionVerb = isDisabling ? 'disable' : 'enable';
+            showModal(`Are you sure you want to ${actionVerb} package: <strong>${pkgName}</strong>?`, async () => {
+                try {
+                    const disableCmd = `pm disable-user --user 0 ${pkgName}`;
+                    const enableCmd = `pm enable ${pkgName}`;
+                    await exec(isDisabling ? disableCmd : enableCmd);
+                    
+                    const pkg = allPackages.find(p => p.name === pkgName);
+                    if (pkg) pkg.enabled = !isDisabling;
+                    
+                    filterPackages();
+                    updateSystemInfo();
+                    showNotification(`Package <strong>${pkgName}</strong> ${actionVerb}d successfully!`, 'success');
+                } catch (error) {
+                    showNotification(`❌ Error ${actionVerb}ing package <strong>${pkgName}</strong>: ${error.message}`, 'error');
+                } finally {
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                }
+            }, () => {
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            });
+        });
+
+        // Event Listeners for package manager section
+        DOMElements.packageTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                DOMElements.packageTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentTab = tab.dataset.tab;
+                filterPackages();
+            });
+        });
+
+        DOMElements.packageSearch?.addEventListener('input', filterPackages);
+        DOMElements.loadPackagesBtn?.addEventListener('click', loadAllPackages);
+        
+        /* -------------------- TERMINAL SECTION LOGIC -------------------- */
+        
+        // Removed initializeTerminal function
+
+        /* -------------------- GENERAL ACTIONS -------------------- */
+
+        // Handler for external links
+        document.addEventListener('click', async function(e) {
+            const target = e.target.closest('[data-github], [data-telegram], [data-issues], [data-discord]');
+            if (!target) return;
+            
+            e.preventDefault();
+            const url = target.dataset.github || target.dataset.telegram || target.dataset.issues || target.dataset.discord;
+            if (url) {
+                try {
+                    await exec(`am start -a android.intent.action.VIEW -d '${url}'`);
+                } catch(err) {
+                    console.error(`Error opening link ${url}:`, err);
+                    showNotification(`❌ Error opening link: ${err.message}`, 'error');
+                }
+            }
+        });
+
+        // Handler for general action buttons
+        document.querySelectorAll("button[data-cmd]").forEach(btn => {
+            btn.addEventListener('click', async () => {
+                if (btn.classList.contains('processing')) return;
+                btn.classList.add('processing');
+                
+                const command = btn.dataset.cmd;
+                if (!command) {
+                    btn.classList.remove('processing');
+                    return;
+                }
+
+                const actionName = btn.textContent.trim();
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                btn.disabled = true;
+                
+                showModal(`Are you sure you want to run the <strong>${actionName}</strong> action?`, async () => {
+                    try {
+                        const result = await exec(command);
+                        if (result.stderr) {
+                            showNotification(`❌ Action '<strong>${actionName}</strong>' failed: ${result.stderr}`, 'error');
+                        } else {
+                            showNotification(`✅ Action '${actionName}' executed successfully!`, 'success');
+                        }
+                    } catch (error) {
+                        showNotification(`❌ Error executing '<strong>${actionName}</strong>': ${error.message}`, 'error');
+                    } finally {
+                        btn.innerHTML = originalHTML;
+                        btn.disabled = false;
+                        btn.classList.remove('processing');
+                    }
+                }, () => {
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                    btn.classList.remove('processing');
+                });
+            });
+        });
+        
+        // Settings button handler
+        DOMElements.settingsBtn?.addEventListener('click', () => showNotification('⚙️ Settings menu coming soon!', 'info'));
+        
+        /* -------------------- INITIALIZATION -------------------- */
+
+        /** Initializes all parts of the application. */
+        async function initializeApp() {
+            initializeNavigation();
+            await checkPreloadStatus();
+            updateSystemInfo();
+            // Removed initializeTerminal()
+            loadAllPackages();
+            
+            // Update system info periodically
+            setInterval(updateSystemInfo, 30000); 
+            updatePreloadStatsDisplay();
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeApp);
+
+    </script>
+
+</body>
+</html>
